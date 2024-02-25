@@ -250,7 +250,7 @@ why months have exactly the length they have.
 #### Month - Calendar weeks
 In a graphic presentation, months are often displayed as table with 7 columns for the weekdays with Monday in the first column.
 The surplus cells can be left empty or, more elegant, be filled with values of the previous resp. next month.  
-A month displayed this way has between 4 (e.g. **February 2021**) and 6 (e.g. **December 2024**) rows.
+A month displayed this way has between 4 (e.g. [February 2021](https://mentalmove.github.io/calendar/calendar.html?2021-02)) and 6 (e.g. [December 2024](https://mentalmove.github.io/calendar/calendar.html?2024-12)) rows.
 
 The first row starts, if the month starts on *Monday*, with the first day of the actual month,
 in all other cases with the last *Monday* of the previous month.
@@ -309,7 +309,7 @@ for ( var i = 1; ; i++ ) {
     }
 }
 ```
-All displayed months on the demo page use this technique.
+All displayed months on the [demo page](https://mentalmove.github.io/calendar/calendar.html) use this technique.
 
 &nbsp;
 
