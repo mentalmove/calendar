@@ -203,13 +203,7 @@ html, body {
 #remaining #year_zone .month .week .day.other {
     cursor: pointer;
 }
-/*.day span.today {
-    position: relative;
-    left: -0.1rem;
-    padding: 0.1rem 0.15rem;
-    border-radius: 50%;
-    border: thin solid #0060C0;
-}*/
+
 .day.today {
     font-weight: 700;
 }

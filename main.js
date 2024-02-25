@@ -2,47 +2,12 @@ function iD (x) {
     return document.getElementById(x);
 }
 
-var translated_months = {
-	en: [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
-	],
-	de: [
-		"Januar",
-		"Februar",
-		"März",
-		"April",
-		"Mai",
-		"Juni",
-		"Juli",
-		"August",
-		"September",
-		"Oktober",
-		"November",
-		"Dezember"
-	]
-};
 var months;
-var translated_weekdays = {
-	en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-	de: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
-};
 var weekdays;
 
 var now;
 var y, m, d;
 var mode = "year";
-var languages = ["en", "de"];
 
 function back () {
 	switch (mode) {
@@ -99,9 +64,6 @@ function day_selected (event) {
 	if ( event.target.selected ) {
 		mode = "month";
 		init();
-		/*var today = iD("month_zone").querySelector(".day.today");
-		if ( today )
-			today.classList.remove("today");*/
 		return;
 	}
 	var selected_days = iD("month_zone").querySelectorAll(".day.selected");
@@ -161,6 +123,36 @@ function prepare () {
 	months = translated_months[l];
 	iD("langselect").selectedIndex = l_index;
 	iD("display_lang").innerHTML = l.toUpperCase();
+
+	if ( window.location.search ) {
+		var match = location.search.match(/\?(\d{1,4})-?(\d{1,2})?-?(\d{1,2})?/);
+		var tmp;
+		if ( match && match.length > 1 ) {
+			if ( !isNaN(match[1]) ) {
+				tmp = parseInt(match[1]);
+				if ( tmp >= 1900 && tmp <= 2100 ) {
+					y = tmp;
+					if ( match.length > 2 && !isNaN(match[2]) ) {
+						tmp = parseInt(match[2]);
+						if ( tmp >= 1 && tmp <= 12 ) {
+							m = tmp - 1;
+							mode = "month";
+							if ( match.length > 3 && !isNaN(match[3]) ) {
+								tmp = parseInt(match[3]);
+								if ( tmp >= 1 && tmp <= last_date_of_month(y, m) ) {
+									setTimeout(function () {
+										d = tmp;
+										mode = "day";
+										init();
+									}, 17);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	var option;
 	var wrapper = iD("yearselect");
@@ -251,8 +243,7 @@ function init () {
 			iD("year_zone").style.display = "none";
 			iD("month_zone").style.display = "flex";
 
-			var tmp = new Date(y, m, d);
-			var weekday = tmp.getDay();
+			var weekday = zellers_weekday(y, m, d);
 			if ( weekdays[weekday] )
 				iD("display_weekday").innerHTML = weekdays[weekday];
 		break;

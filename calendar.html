@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Calendar</title>
+
+        <link rel="stylesheet" href="main.css">
+        
+        <script type="text/javascript" src="utilities.js"></script>
+        <script type="text/javascript" src="month.js"></script>
+        <script type="text/javascript" src="main.js"></script>
+    </head>
+    <body onload="init()">
+
+        <div id="header">
+            <span id="back" onclick="back()"></span>
+            <span id="year" onclick="open_select(this)">
+                <div id="display_numyear"></div>
+                <select id="yearselect" onchange="year_selected(value)"></select>
+            </span>
+            <span id="month"></span>
+            <span id="day">
+                <div id="display_numday"></div>
+                <div id="display_weekday"></div>
+            </span>
+            <span id="lang" class="solo" onclick="open_select(this)">
+                <div id="display_lang"></div>
+                <select id="langselect" onchange="lang_selected(value)">
+                    <option value="en">
+                        EN
+                    </option>
+                    <option value="de">
+                        DE
+                    </option>
+                </select>
+            </span>
+        </div>
+
+        <div id="remaining">
+            <div id="year_zone" class="zone"></div>
+            <div id="month_zone" class="zone"></div>
+        </div>
+
+    </body>
+</html>

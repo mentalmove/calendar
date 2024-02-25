@@ -1,37 +1,8 @@
-function last_date_of_month (y, m) {
-	if ( m < 0 )
-		m += 12;
-	m = m % 12;
-	if ( m == 1 ) {
-		if ( y % 4 )
-			return 28;
-		if ( !(y % 100) && (y % 400) )
-			return 28;
-		return 29;
-	}
-	var list = [
-		31,
-		0,
-		31,
-		30,
-		31,
-		30,
-		31,
-		31,
-		30,
-		31,
-		30,
-		31
-	];
-	return list[m];
-}
-
 function create_month (wrapper, provided_month) {
 	if ( provided_month == null )
 		provided_month = m;
-	var d = new Date(y, provided_month, 1);
 	var last = last_date_of_month(y, provided_month);
-	offset = d.getDay() - 1;
+	var offset = zellers_weekday(y, provided_month, 1) - 1;
 	if ( offset < 0 )
 		offset += 7;
 

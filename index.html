@@ -3,43 +3,593 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Calendar</title>
+        <title>Calendar Calculation</title>
 
-        <link rel="stylesheet" href="main.css">
-        
-        <script type="text/javascript" src="main.js"></script>
-        <script type="text/javascript" src="month.js"></script>
+        <link rel="stylesheet" href="explanation.css">
+
+        <script type="text/javascript">
+var months = [
+	"January", "February", "March", "April",
+	"May", "June", "July", "August",
+	"September", "October", "November", "December"
+];
+        </script>
+        <script type="text/javascript">
+function leap_year (y) {
+    if ( y % 4 )
+        return false;
+    if ( !(y % 100) && (y % 400) )
+        return false;
+    return true;
+}
+        </script>
+        <script type="text/javascript">
+var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        </script>
+        <script type="text/javascript">
+/**
+ * The hard and short way
+ * (Christian Zeller, 1882)
+ */
+function weekday (y, m, d) {
+    if ( m < 2 )
+        y -= 1;
+    return w = (((
+            d + Math.floor(2.6 * ((m + 10) % 12 + 1) - 0.2)
+            + y % 100 + Math.floor(y % 100 / 4)
+            + Math.floor(y / 400)
+            - 2 * Math.floor(y / 100) - 1
+        ) % 7 + 7) % 7 + 1) % 7;
+}
+        </script>
+        <script type="text/javascript">
+function last_date_of_month (y, m) {
+    if ( m < 0 )
+        m += 12;
+    m = m % 12;
+    var list = [
+        31,
+        28,
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31
+    ];
+    if ( m == 1 && leap_year(y) )
+        list[1] = 29;
+    return list[m];
+}
+        </script>
+        <script type="text/javascript">
+function first_date_later (y1, y2, m1, m2, d1, d2) {
+    var units = [y1, y2, m1, m2, d1, d2];
+    for ( var i = 0; i < units.length; i += 2 ) {
+        if ( units[i] < units[i + 1] )
+            return false;
+        if ( units[i] > units[i + 1] )
+            return true;
+    }
+    return false;
+}
+        </script>
+        <script type="text/javascript">
+function date_distance (y1, m1, d1, y2, m2, d2) {
+    if ( first_date_later(y1, y2, m1, m2, d1, d2) ) {
+        var tmp = [y1, m1, d1];
+        y1 = y2;
+        m1 = m2;
+        d1 = d2;
+        y2 = tmp[0];
+        m2 = tmp[1];
+        d2 = tmp[2];
+    }
+    if ( y1 == y2 && m1 == m2 )
+        return d2 - d1 + 1;
+    var i;
+    var days = 0;
+    var year_difference = y2 - y1;
+    if ( year_difference > 400 ) {
+        var factor = Math.floor(year_difference / 400);
+        if ( !(year_difference % 400) )
+            factor -= 1;
+        days += factor * 146097; // 146097 days are 400 years
+        y1 += factor * 400;
+    }
+    days += last_date_of_month(y1, m1) - d1 + 1;
+    var limit = (y1 == y2) ? m2 : 12;
+    for ( i = (m1 + 1); i < limit; i++ )
+        days += last_date_of_month(y1, i);
+    if ( y1 != y2 ) {
+        days += (y2 - y1 - 1) * 365;
+        var small_leap = Math.ceil((y1 + 1) / 4) * 4;
+        var large_leap = Math.floor((y2 - 1) / 4) * 4;
+        if ( large_leap >= small_leap ) {
+            days += (large_leap - small_leap) / 4 + 1;
+            for ( i = (Math.ceil(small_leap / 100) * 100); i <= (Math.floor(large_leap / 100) * 100); i += 100 ) {
+                if ( !(i % 400) )
+                    continue;
+                days -= 1;
+            }
+        }
+        for ( i = 0; i < m2; i++ )
+            days += last_date_of_month(y2, i);
+    }
+    days += d2;
+    return days;
+}
+        </script>
+        <script type="text/javascript">
+// `2000-01-01` is known to be Saturday
+var DAY_INDEX_0_0_1 = 6;
+        </script>
+        <script type="text/javascript">
+function sql_date (time_values) {
+    var result = "";
+    if ( time_values.length && time_values[0] >= 1900 && time_values[0] <= 2100 ) {
+        result += time_values[0];
+        while ( result.length < 4 )
+            result = "0" + result;
+        if ( time_values.length > 1 ) {
+            var m = "" + (time_values[1] + 1);
+            if ( m.length < 2 )
+                m = "0" + m;
+            result += "-" + m;
+            if ( time_values.length > 2 ) {
+                var d = "" + time_values[2];
+                if ( d.length < 2 )
+                    d = "0" + d;
+                result += "-" + d;
+            }
+        }
+    }
+    return result;
+}
+        </script>
+
+        <script type="text/javascript">
+        	function calculate_year (zone, year) {
+        		var entry, entries;
+        		entry = zone.querySelector("sub[name='0']");
+        		if ( entry )
+        			entry.innerHTML = "[" + months.join(", ") + "]";
+        		var leap = leap_year(year);
+        		entry = zone.querySelector("span[name='1']");
+        		if ( entry ) {
+        			if ( leap )
+        				entry.innerHTML = "2 days";
+        			else
+        				entry.innerHTML = "1 day";
+        		}
+                var calendar_weeks = 52;
+                var new_year = new Date(year, 0, 1);
+                var new_year_day_index = new_year.getDay();
+                if ( (new_year_day_index == 3 && leap) || new_year_day_index == 4 )
+                    calendar_weeks = 53;
+                entry = zone.querySelector("span[name='2']");
+                if ( entry )
+                    entry.innerHTML = calendar_weeks;
+        		entry = zone.querySelector("span[name='3']");
+        		if ( entry )
+        			entry.innerHTML = (leap) ? 366 : 365;
+        		entries = zone.querySelectorAll("span[name='y']");
+        		for ( i = 0; i < entries.length; i++ )
+        			entries[i].innerHTML = year;
+                entries = zone.querySelectorAll("span[name='nydi']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = new_year_day_index;
+        	}
+            function calculate_month (zone, year, month) {
+                var entry, entries, i;
+
+                var amount_days = last_date_of_month(year, month);
+                entry = zone.querySelector("span[name='0']");
+                if ( entry )
+                    entry.innerHTML = amount_days;
+
+                var first = new Date(year, month, 1);
+                var offset = (first.getDay() || 7) - 1;
+                var amount_days_month_before = last_date_of_month(year, (month - 1));
+                var tmp;
+                var start = [];
+                var end = [];
+                var tmp2 = 1 - offset;
+                while ( (tmp2 + 7) <= amount_days )
+                    tmp2 += 7;
+                var counter = 0;
+                for ( i = 0; i < 7; i++ ) {
+                    tmp = i - offset + 1;
+                    if ( tmp > 0 )
+                        start.push(tmp);
+                    else
+                        start.push(amount_days_month_before + tmp);
+                    tmp = i + tmp2;
+                    if ( tmp <= amount_days )
+                        end.push(tmp);
+                    else
+                        end.push(++counter);
+                }
+                entry = zone.querySelector("span[name='tmp2']");
+                if ( entry )
+                    entry.innerHTML = tmp2;
+                entry = zone.querySelector("span[name='1']");
+                if ( entry )
+                    entry.innerHTML = "\t" + start.join("\t");
+                entry = zone.querySelector("span[name='2']");
+                if ( entry )
+                    entry.innerHTML = "\t" + end.join("\t");
+
+                entries = zone.querySelectorAll("span[name='y']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = year;
+                entries = zone.querySelectorAll("span[name='m']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = month;
+                entries = zone.querySelectorAll("span[name='mn']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = months[month];
+                entries = zone.querySelectorAll("span[name='offset']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = offset;
+                entries = zone.querySelectorAll("span[name='ab']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = amount_days_month_before;
+            }
+        	function calculate_day (zone, year, month, day) {
+        		var entry, entries, i;
+        		entry = zone.querySelector("span[name='0']");
+        		if ( entry )
+        			entry.innerHTML = months[month];
+        		var date = new Date(year, month, day);
+        		var day_index = date.getDay();
+        		entry = zone.querySelector("span[name='1']");
+        		if ( entry )
+        			entry.innerHTML = days[day_index];
+                var day_index2 = weekday(year, month, day);
+                entry = zone.querySelector("span[name='2']");
+                if ( entry )
+                    entry.innerHTML = days[day_index2];
+
+                var reference_year = Math.floor(year / 400) * 400;
+                var distance = date_distance(reference_year, 0, 1, year, month, day) - 1;
+                var day_index3 = (distance + DAY_INDEX_0_0_1) % 7;
+                entry = zone.querySelector("span[name='3']");
+                if ( entry )
+                    entry.innerHTML = days[day_index3];
+
+                var day_of_year = date_distance(year, 0, 1, year, month, day);
+
+                var new_year_distance = date_distance(reference_year, 0, 1, year, 0, 1) - 1;
+                var new_year_index = ((new_year_distance + DAY_INDEX_0_0_1) % 7) || 7;
+                var calendar_week = (new_year_index < 5) ? Math.ceil(day_of_year / 7) : Math.floor(day_of_year / 7);
+                var ceil = zone.querySelector("span.ceil");
+                var floor = zone.querySelector("span.floor");
+                if ( ceil && floor ) {
+                    if ( new_year_index >= 5 ) {
+                        ceil.classList.remove("important");
+                        floor.classList.add("important");
+                    }
+                    else {
+                        ceil.classList.add("important");
+                        floor.classList.remove("important");
+                    }
+                }
+                entry = zone.querySelector("span[name='4']");
+                if ( entry )
+                    entry.innerHTML = calendar_week;
+
+        		entries = zone.querySelectorAll("span[name='y']");
+        		for ( i = 0; i < entries.length; i++ )
+        			entries[i].innerHTML = year;
+        		entries = zone.querySelectorAll("span[name='m']");
+        		for ( i = 0; i < entries.length; i++ )
+        			entries[i].innerHTML = month;
+        		entries = zone.querySelectorAll("span[name='d']");
+        		for ( i = 0; i < entries.length; i++ )
+        			entries[i].innerHTML = day;
+        		entries = zone.querySelectorAll("span[name='di']");
+        		for ( i = 0; i < entries.length; i++ )
+        			entries[i].innerHTML = day_index;
+                entries = zone.querySelectorAll("span[name='di2']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = day_index2;
+                entries = zone.querySelectorAll("span[name='ry']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = reference_year;
+                entries = zone.querySelectorAll("span[name='dist']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = distance;
+                entries = zone.querySelectorAll("span[name='di3']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = day_index3;
+                entries = zone.querySelectorAll("span[name='doy']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = day_of_year;
+                entries = zone.querySelectorAll("span[name='nyd']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = new_year_distance;
+                entries = zone.querySelectorAll("span[name='nyi']");
+                for ( i = 0; i < entries.length; i++ )
+                    entries[i].innerHTML = new_year_index;
+        	}
+        	function calculate (zone, zone_name, time_values) {
+        		switch (zone_name) {
+        			case "year":
+        				calculate_year(zone, time_values[0]);
+        			break;
+        			case "month":
+                        calculate_month(zone, time_values[0], time_values[1]);
+                    break;
+        			case "day":
+        				calculate_day(zone, time_values[0], time_values[1], time_values[2]);
+        			break;
+        		}
+                var a = zone.querySelector("a");
+                if ( a ) {
+                    a.onclick = function () {
+                        var formatted_date = sql_date(time_values);
+                        if ( !formatted_date )
+                            return true;
+                        window.open(this.href + "?" + formatted_date, "calendar");
+                        return false;
+                    };
+                    if ( time_values[0] < 1900 || time_values[0] > 2100 )
+                        a.classList.add("deactivated");
+                    else
+                        a.classList.remove("deactivated");
+                }
+        	}
+
+        	var zones;
+        	var initialised = {};
+        	var scripts;
+        	function show_zone (zone_name) {
+        		zones = zones || document.querySelectorAll("div.section.zone");
+        		zone = document.querySelector("div.section.zone." + zone_name);
+        		if ( !zone )
+        			return;
+        		var i;
+        		for ( i = 0; i < zones.length; i++ )
+        			zones[i].style.display = (zones[i] == zone) ? "block" : "none";
+        		if ( initialised[zone_name] )
+        			return false;
+                var link = document.createElement("div");
+                link.className = "link";
+                var a = document.createElement("a");
+                a.href = "calendar.html";
+                a.target = "_BLANK";
+                a.innerHTML = zone_name.toUpperCase() + " EXAMPLE";
+                link.appendChild(a);
+                zone.insertBefore(link, zone.querySelector("pre"));
+        		scripts = scripts || document.querySelectorAll("script");
+        		var code_zones = zone.querySelectorAll("code");
+        		var name;
+        		for ( i = 0; i < code_zones.length; i++ ) {
+        			name = code_zones[i].getAttribute("name");
+        			if ( !name )
+        				continue;
+        			name = +name
+        			if ( scripts[name] )
+        				code_zones[i].innerHTML = scripts[name].innerHTML;
+        		}
+        		var now = new Date();
+        		var inputs = zone.querySelectorAll("input");
+        		var time_values = [];
+        		var value, fnc, interval;
+        		for ( i = 0; i < inputs.length; i++ ) {
+        			switch (i) {
+        				case 0:
+        					value = now.getFullYear();
+        					interval = [1, 9999];
+        				break;
+        				case 1:
+        					value = now.getMonth();
+        					interval = [0, 11];
+        				break;
+        				case 2:
+        					value = now.getDate();
+        					interval = [1, 31];
+        				break;
+        			}
+        			inputs[i].value = value;
+        			time_values.push( value );
+        			fnc = (function (input, index, interv) {
+        				return function (e) {
+        					var v = input.value.trim();
+        					if ( !v || isNaN(v) ) {
+        						if ( e.type == "blur" )
+        							input.value = time_values[index];
+        						return;
+        					}
+        					v = parseInt(v);
+        					if ( v >= interv[0] && v <= interv[1] ) {
+        						time_values[index] = v;
+        						calculate(zone, zone_name, time_values);
+        						return;
+        					}
+        					input.value = time_values[index];
+        				}
+        			})(inputs[i], i, interval);
+        			inputs[i].addEventListener("input", fnc);
+        			inputs[i].addEventListener("blur", fnc);
+        		}
+        		calculate(zone, zone_name, time_values);
+        		initialised[zone_name] = true;
+        		return false;
+        	}
+        </script>
     </head>
-    <body onload="init()">
+    <body>
 
-        <div id="header">
-            <span id="back" onclick="back()"></span>
-            <span id="year" onclick="open_select(this)">
-                <div id="display_numyear"></div>
-                <select id="yearselect" onchange="year_selected(value)"></select>
-            </span>
-            <span id="month"></span>
-            <span id="day">
-                <div id="display_numday"></div>
-                <div id="display_weekday"></div>
-            </span>
-            <span id="lang" class="solo" onclick="open_select(this)">
-                <div id="display_lang"></div>
-                <select id="langselect" onchange="lang_selected(value)">
-                    <option value="en">
-                        EN
-                    </option>
-                    <option value="de">
-                        DE
-                    </option>
-                </select>
-            </span>
+        <div class="section">
+        	<header>
+        		<h1>
+        			Calendar
+        		</h1>
+        	</header>
+        	<br><br><br><br>
+        	<div class="inner">
+        		<h1>
+        			Calendar Calculation
+        		</h1>
+        		<br><br>
+        		<h2>
+        			Relations between calendar units
+        		</h2>
+        		<br>
+        	</div>
+
+	        <ul>
+	        	<li>
+	        		<a href="#" onclick="return show_zone('year')">
+	        			Year
+	        		</a>
+	        	</li>
+	        	<li>
+	        		<a href="#" onclick="return show_zone('month')">
+	        			Month
+	        		</a>
+	        	</li>
+	        	<li>
+	        		<a href="#" onclick="return show_zone('day')">
+	        			Day
+	        		</a>
+	        	</li>
+	        </ul>
+
         </div>
 
-        <div id="remaining">
-            <div id="year_zone" class="zone"></div>
-            <div id="month_zone" class="zone"></div>
+        <br><br>
+
+        <div class="section zone year">
+            <pre>
+Year: <input>
+
+
+<code name="0"></code>
+<h3 class="inline">Months:</h3> 12 <sub class="ellipsis" name="0">MONTH NAMES</sub>
+
+<code name="1"></code>
+<code>var additional_days = ( leap_year(<span class="important" name="y">y</span>) ) ? 2 : 1;</code>
+<h3 class="inline">Weeks:</h3> 52 + <span name="1">ADDITIONAL DAYS</span>
+
+<code>var calendar_weeks = 52; // Default
+/**
+ * To see different pure arithmetic solutions, refer to chapter `Day`
+ */
+var new_year = new Date(<span class="important" name="y">y</span>, 0, 1);
+var new_year_day_index = new_year.getDay(); // <span name="nydi">NEW YEAR DAY INDEX</span>
+if ( (<span class="important" name="nydi">NEW YEAR DAY INDEX</span> == 3 &amp;&amp; leap_year(<span class="important" name="y">y</span>)) || <span class="important" name="nydi">NEW YEAR DAY INDEX</span> == 4 )
+    calendar_weeks = 53;</code>
+<h3 class="inline">Calendar Weeks:</h3> <span name="2">CALENDAR WEEKS</span>
+
+<code>var days = ( leap_year(<span class="important" name="y">y</span>) ) ? 366 : 365;</code>
+<h3 class="inline">DAYS:</h3> <span name="3">AMOUNT DAYS</span>
+            </pre>
         </div>
+        <div class="section zone month">
+            <pre>
+Year: <input>		Month (zero based): <input>
+
+
+<code name="0"></code>
+<code>var month_name = months[<span class="important" name="m">m</span>];</code>
+<h3 class="inline">Month name:</h3> <span name="mn">MONTH NAME</span>
+
+<code name="1"></code>
+<code name="4"></code>
+<code>var amount_days = last_date_of_month(<span class="important" name="y">y</span>, <span class="important" name="m">m</span>);</code>
+<h3 class="inline">Days in <span name="mn">MONTH NAME</span> <span name="y">y</span>:</h3> <span name="0">AMOUNT DAYS</span>
+
+<code>/**
+ * To see different pure arithmetic solutions, refer to chapter `Day`
+ */
+var tmp, i;
+var first = new Date(<span class="important" name="y">y</span>, <span class="important" name="m">m</span>, 1);
+var offset = (first.getDay() || 7) - 1; // <span name="offset">OFFSET</span>
+var amount_days_month_before = last_date_of_month(<span class="important" name="y">y</span>, (<span class="important" name="m">m</span> - 1)); // <span name="ab">AMOUNT DAYS MONTH BEFORE</span>
+var start = [];
+var end = [];
+var tmp2 = 1 - <span class="important" name="offset">OFFSET</span>;
+while ( (tmp2 + 7) &lt;= amount_days )
+    tmp2 += 7;
+var counter = 0;
+for ( i = 0; i &lt; 7; i++ ) {
+    tmp = i - <span class="important" name="offset">OFFSET</span> + 1;
+    if ( tmp > 0 )
+        start.push(tmp);
+    else
+        start.push(<span class="important" name="ab">AMOUNT DAYS MONTH BEFORE</span> + tmp);
+    tmp = i + <span class="important" name="tmp2">TMP2</span>;
+    if ( tmp &lt;= amount_days )
+        end.push(tmp);
+    else
+        end.push(++counter);
+}</code>
+<h3 class="inline">First (partial) week:</h3> <span name="1">FIRST WEEK</span>
+<h3 class="inline">Last (partial) week:</h3> <span name="2">LAST WEEK</span>
+            </pre>
+        </div>
+        <div class="section zone day">
+            <pre>
+Year: <input>		Month (zero based): <input>		Day: <input>
+
+
+<code name="0"></code>
+<code>var month_name = months[<span class="important" name="m">m</span>];</code>
+<h3 class="inline">Month name:</h3> <span name="0">MONTH NAME</span>
+
+<code name="2"></code>
+<code>var date = new Date(<span class="important" name="y">y</span>, <span class="important" name="m">m</span>, <span class="important" name="d">d</span>);
+var day_index = date.getDay(); // <span name="di">DAY INDEX</span>
+var day_name = days[<span class="important" name="di">DAY INDEX</span>];</code>
+<h3 class="inline">Day name:</h3> <span name="1">DAY NAME</span>
+
+<code name="3"></code>
+<code>day_index = weekday(<span class="important" name="y">y</span>, <span class="important" name="m">m</span>, <span class="important" name="d">d</span>); // <span name="di2">DAY INDEX</span>
+day_name = days[<span class="important" name="di2">DAY INDEX</span>];</code>
+<h3 class="inline">Day name:</h3> <span name="2">DAY NAME</span>
+
+<code>/**
+ * The hard and long way
+ * (with useful side-effects)
+ */</code>
+<code name="1"></code>
+<code name="4"></code>
+<code name="5"></code>
+<code name="6"></code>
+<code>var reference_year = Math.floor(<span class="important" name="y">y</span> / 400) * 400; // <span name="ry">REFERENCE YEAR</span>
+var distance = date_distance(<span class="important" name="ry">REFERENCE YEAR</span>, 0, 1, <span class="important" name="y">y</span>, <span class="important" name="m">m</span>, <span class="important" name="d">d</span>) - 1; // <span name="dist">DISTANCE</span></code>
+<code name="7"></code>
+<code>day_index = (<span class="important" name="dist">DISTANCE</span> + DAY_INDEX_0_0_1) % 7; // <span name="di3">DAY INDEX</span>
+day_name = days[<span class="important" name="di3">DAY INDEX</span>];</code>
+<h3 class="inline">Day name:</h3> <span name="3">DAY NAME</span>
+
+<code>var day_of_year = date_distance(<span class="important" name="y">y</span>, 0, 1, <span class="important" name="y">y</span>, <span class="important" name="m">m</span>, <span class="important" name="d">d</span>);</code>
+<h3 class="inline">Day of year:</h3> <span name="doy">DAY OF YEAR</span>
+
+<code>var new_year_distance = date_distance(reference_year, 0, 1, <span class="important" name="y">y</span>, 0, 1) - 1; // <span name="nyd">NEW YEAR DISTANCE</span>
+// Sunday must be `7`, not `0`!
+var new_year_index = ((<span class="important" name="nyd">NEW YEAR DISTANCE</span> + DAY_INDEX_0_0_1) % 7) || 7; // <span name="nyi">NEW YEAR INDEX</span>
+var calendar_week = (<span class="important" name="nyi">NEW YEAR INDEX</span> &lt; 5) ? <span class="ceil">Math.ceil(day_of_year / 7)</span> : <span class="floor">Math.floor(day_of_year / 7)</span>;</code>
+<h3 class="inline">Calendar week:</h3> <span name="4">CALENDAR WEEK</span>
+            </pre>
+        </div>
+
+        <footer>
+            <p>
+                This project is maintained by
+                <a href="https://github.com/mentalmove?tab=repositories">
+                    mentalmove
+                </a>
+            </p>
+            <p><small><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist" style="font-size:11px">orderedlist</a></small></small></p>
+        </footer>
 
     </body>
 </html>
