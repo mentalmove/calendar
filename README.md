@@ -605,7 +605,7 @@ It has to be decided if start day and end day shall both contribute to the resul
 *How many days is Peter older than Paul?*  
 The distance measurement function described here sees both start day and end day as part of the result (as in the holiday question);
 therefore, for detecting the day index, `1` **has to be subtracted from the result**
-while for detecting the **day of the year** the included day **can remain**.
+while for detecting the [day of the year](#day---year) the included day **can remain**.
 
 In the following, dates are increased by one day. This can be retrieved this way:
 * IF ( DAY is NOT last day of MONTH )
