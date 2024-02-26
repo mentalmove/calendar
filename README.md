@@ -437,6 +437,7 @@ In 1882, German mathematician, geographer and theologian *Christian Zeller* publ
 ```
 w = (d + ⌊2.6 ⋅ m − 0.2⌋ + y + ⌊y/4⌋ + ⌊c/4⌋ − 2c) mod 7
 ```
+`d` and `w` are mean *day* and *weekday index*  
 `⌊⌋` means `Math.floor()`  
 `c` means *century*, i.e. `3rd and 4th digit from right` resp. `Math.floor(year / 100)`  
 `y` means `last tow digits of year` resp. `year % 100`  
