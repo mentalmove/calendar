@@ -791,7 +791,7 @@ If not, `year_difference` is divided by `400` and floored.
 ```
 var factor = Math.floor(year_difference / 400);
 ```
-If `factor` is divisible by `400`, it is decreased by `1`.
+If `year_difference` is divisible by `400`, `factor` is decreased by `1`.
 The reason is: In the general case,
 it is not known if the start date is earlier or later in the year than the end date
 (the original gap of multiples of `400` disappears).
