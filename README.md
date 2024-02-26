@@ -534,8 +534,8 @@ should be sufficient to detect if the year's reference index moves 1 day (`365 %
 ```
 weekday_index = (CENTURY_INDEX + y + Math.floor(y / 4) + d + Math.floor(2.6 * m - 0.2) - 2) % 7;
 ```
-The century index can be omitted when a correction value every 400 years (`Math.floor(y / 400)`) is inserted;
-this needs another constant to be added to the century value (`Math.floor(y / 400) + CENTURY_CORRECTION`).  
+The century index can be omitted when a correction value every 400 years (`Math.floor(year / 400)`) is inserted;
+this needs another constant to be added to the century value (`Math.floor(year / 400) + CENTURY_CORRECTION`).  
 Even the reference date can be dropped - marvellously, the two constants cancel each other out.
 
 One could see it as a miracle that such a formula exists, but there **must** always be a formula
