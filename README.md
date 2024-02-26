@@ -874,7 +874,7 @@ please keep in mind that people in ancient times might have used another time ma
 Especially humans who lived **B.C.** might have problems with a calendar having Christ's birth as central reference date.
 
 ##### Day name detection using date distance measurement
-`reference_year` is a year divisible by `400` that is lower or equal to the actual year and preferable close to it.
+`reference_year` is a year divisible by `400` that is lower than or equal to the actual year and preferable close to it.
 ```
 var reference_year = Math.floor(year / 400) * 400;
 var distance = date_distance(reference_year, 0, 1, year, month, day) - 1;
