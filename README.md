@@ -57,7 +57,7 @@ Since month indices are zero based, this can be done using a [simple array](#mon
 #### Year - Days
 The duration of an astronomic year is approximately 365 days and 6 hours;
 therefore, the default length of a year is defined as 365 days.
-Since this is too short, every fourth year (i.e. a year divisible by 4) has 366 days.
+Since this is too short, every fourth year (i.e. a year divisible by `4`) has 366 days.
 This is a little too long, so years divisible by 100 have 365 days.
 To get it (almost) perfect, years divisible by 400 have 366 days.
 ```
