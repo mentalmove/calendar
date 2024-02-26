@@ -58,8 +58,8 @@ Since month indices are zero based, this can be done using a [simple array](#mon
 The duration of an astronomic year is approximately 365 days and 6 hours;
 therefore, the default length of a year is defined as 365 days.
 Since this is too short, every fourth year (i.e. a year divisible by `4`) has 366 days.
-This is a little too long, so years divisible by 100 have 365 days.
-To get it (almost) perfect, years divisible by 400 have 366 days.
+This is a little too long, so years divisible by `100` have 365 days.
+To get it (almost) perfect, years divisible by `400` have 366 days.
 ```
 IF ( YEAR is NOT divisible by 4 )
 	YEAR has 365 days. No further investigations necessary.
@@ -103,7 +103,7 @@ var additional_days = ( leap_year(year) ) ? 2 : 1;
 ```
 
 #### Year - Calendar weeks
-When a year starts with *Monday* (like 2024), calculating calendar weeks is easy.
+When a year starts with *Monday* (like [2024](https://mentalmove.github.io/calendar/calendar.html?2024)), calculating calendar weeks is easy.
 In all other cases it has to be decided if the week with *January 1st* has to be added to the old or to the new year.  
 The rule (at least in most countries) is: **The week belongs to the year in which its bigger part lies.**  
 As a consequence, the rule for the amount of calendar weeks is:  
