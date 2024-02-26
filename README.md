@@ -236,7 +236,7 @@ function last_date_of_month (y, m) {
         30,
         31
     ];
-    if ( m == 1 && leap_year(y) )
+    if ( m == 1 && leap_year(y) ) // Leap year detection skipped if month is not February
         list[1] = 29;
     return list[m];
 }
@@ -286,7 +286,7 @@ From the previous month's perspective, the value just calculated has to be added
 From the next month's perspective, a new counting has to begin with `day_next_month`.  
 Now, it has to be decided if the actual, previous or next month's value shall be taken:
 * Values below `1` belong to the previous month
-* Values greater than `amount_days_of_actual_month` belong to the next month
+* Values higher than `amount_days_of_actual_month` belong to the next month
 * All other values belong to the actual month
 ```
 var day_actual_month;
@@ -437,7 +437,12 @@ In 1882, German mathematician, geographer and theologian *Christian Zeller* publ
 ```
 w = (d + ⌊2.6 ⋅ m − 0.2⌋ + y + ⌊y/4⌋ + ⌊c/4⌋ − 2c) mod 7
 ```
-`⌊⌋` means `Math.floor()`, `c` means *century*, i.e. `3rd and 4th digit from right` resp. `Math.floor(y / 100)`  
+`⌊⌋` means `Math.floor()`  
+`c` means *century*, i.e. `3rd and 4th digit from right` resp. `Math.floor(year / 100)`  
+`y` means `last tow digits of year` resp. `year % 100`  
+`c` and `y` are interpreted as values of the *Julian calendar* where *January* and *February*
+belong to the previous year  
+`mod` means (at least for unsigned integer values) `%`  
 The following is a translation into modern computer conventions
 ```
 function weekday (y, m, d) {
