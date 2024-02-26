@@ -619,7 +619,7 @@ In the following, dates are increased by one day. This can be retrieved this way
 * ELSE
     * Set DAY to `1`
     * IF ( MONTH is *December* )
-        * Set MONTH to `1`
+        * Set MONTH to *January*
         * Increase YEAR by `1`
     * ELSE
         * Increase MONTH by `1`
