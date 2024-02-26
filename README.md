@@ -647,7 +647,7 @@ A variable REMAINING_DAYS can be calculated by subtracting ACTUAL_DATE.DAY from 
 A subprocedure *Set to the beginning of next month* could be defined as
 * Set DAY to `1`
 * IF ( MONTH is *December* )
-    * Set MONTH to `1`
+    * Set MONTH to *January*
     * Increase YEAR by `1`
 * ELSE
     * Increase MONTH by `1`
