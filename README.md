@@ -675,8 +675,9 @@ Of course, multiplying two two-digit numbers is cheaper than multiplying two ten
 but that is seen as negligible.
 
 The problem of the two presented sketches is obviously the iteration:
-The longer the time span, the more iterations have to be done.
-Even the second sketch seems to be unsuccessful, but just a little optimisation is missing.
+The longer the time span, the more iterations have to be done.  
+Therefore, the second sketch seems to be completely unsuccessful, but it is almost good.
+Just a little optimisation is missing.
 
 Firstly, iterations can be kept but have to be limited to an absolute maximum value.  
 Secondly, developers tend to consider code with only a few case distinctions elegant
