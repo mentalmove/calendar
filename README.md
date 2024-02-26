@@ -529,7 +529,7 @@ weekday_index = (INDEX_FOR_LAST_DAY_OF_FEBRUARY + d + Math.floor(2.6 * m - 0.2) 
 ```
 (*The constant in the end being* `2` *is a coincidental consequence of taking* the last day of Feburary.)  
 Centuries have (apart from the beginning) all the same leap years: the years divisible by `4`.
-When a lookup table has a reference day per century, the year's last two digits (`y % 100`)
+When a lookup table has a reference day per century, the year's last two digits (`year % 100`)
 should be sufficient to detect if the year's reference index moves 1 day (`365 % 7 = 1`) or 2 days (`366 % 7 = 2`) per year.
 ```
 weekday_index = (CENTURY_INDEX + y + Math.floor(y / 4) + d + Math.floor(2.6 * m - 0.2) - 2) % 7;
